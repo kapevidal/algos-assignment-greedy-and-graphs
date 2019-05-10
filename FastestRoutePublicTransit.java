@@ -1,7 +1,7 @@
 /**
  * Public Transit
- * Author: Your Name and Carolyn Yao
- * Does this compile? Y/N
+ * Author: Kirsten Pevidal and Carolyn Yao
+ * Does this compile? Y
  */
 
 /**
@@ -24,17 +24,88 @@ public class FastestRoutePublicTransit {
    * @param freq freq[u][v] How frequently is the train that stops at u on its way to v
    * @return shortest travel time between S and T
    */
-  public int myShortestTravelTime(
-    int S,
-    int T,
-    int startTime,
-    int[][] lengths,
-    int[][] first,
-    int[][] freq
-  ) {
     // Your code along with comments here. Feel free to borrow code from any
     // of the existing method. You can also make new helper methods.
-    return 0;
+  public int myShortestTravelTime(
+		  int S,//start station
+		  int T,//destination
+		  int startTime,
+		  int[][] lengths,
+		  int[][] first,
+		  int[][] freq)
+  {
+	  
+	  	//for convenience
+	  	int startingStation = S;
+	  	int destination = T;
+	  	//visited station
+	  	int holdLength= lengths[0].length;
+	  	System.out.println(holdLength);
+	    Boolean[] stationVisit = new Boolean[holdLength];
+	    //checks time for each station and see the best time
+        int[] optimalTime = new int[holdLength];
+        
+        //set default
+        for (int i = 0; i < holdLength; i++)
+        {
+            optimalTime[i] = Integer.MAX_VALUE;
+            stationVisit[i] = false;
+        }
+        
+        //start at the starting station given time
+        //compare wait times per station given how frequent trains stop and the time of the arrival 
+        //of first train from startingstation to destination
+        optimalTime[startingStation] = startTime; 
+        for(int node = 0; node < holdLength - 1; node++)
+        {
+            int minhold = 0;
+            int minimum = Integer.MAX_VALUE;
+            //makes sure unvisited station stays default
+            for (int i = 0; i < holdLength; i++)
+            {
+
+                if (!stationVisit[i] && optimalTime[i] <= minimum)
+                {
+                    minimum = optimalTime[i];
+                    minhold = i;
+                }
+            }     
+            
+            //visit minholdstation
+            stationVisit[minhold] = true;         
+            //wait time set
+            int waitTime;          
+            
+            for (int i = 0; i < holdLength; i++)
+            {
+                if(optimalTime[minhold] > first[minhold][i])
+                {
+                    if(freq[minhold][i] == 0)
+                    	waitTime = optimalTime[minhold] + lengths[minhold][i];
+                    else {
+                    	waitTime = ((optimalTime[minhold] - first[minhold][i]) % freq[minhold][i]);
+                        // no wait
+                        if(waitTime == 0)
+                        	waitTime = optimalTime[minhold] + lengths[minhold][i];
+                        else 
+                        	waitTime = optimalTime[minhold] + lengths[minhold][i] 
+                            		       + freq[minhold][i] - waitTime;
+                    }
+                }
+                else
+                {
+                	waitTime = first[minhold][i] - optimalTime[minhold];
+                	waitTime = optimalTime[minhold] + lengths[minhold][i] + waitTime;
+                }
+                
+                if (!stationVisit[i] && lengths[minhold][i] != 0 && optimalTime[minhold] != Integer.MAX_VALUE && waitTime < optimalTime[i]) 
+                {
+                    optimalTime[i] = waitTime;
+                }
+            }
+        }
+        
+        return optimalTime[destination] - startTime;   
   }
 
   /**
@@ -124,6 +195,33 @@ public class FastestRoutePublicTransit {
     FastestRoutePublicTransit t = new FastestRoutePublicTransit();
     t.shortestTime(lengthTimeGraph, 0);
 
-    // You can create a test case for your implemented method for extra credit below
+    // EXTRA CREDIT
+    int first[][] = new int[][]{
+                {0, 6, 0, 0, 0, 0, 0, 9, 0},
+                {2, 0, 3, 0, 0, 0, 0, 5, 0},
+                {0, 2, 0, 3, 0, 1, 0, 0, 2},
+                {0, 0, 4, 0, 5, 8, 0, 0, 0},
+                {0, 0, 0, 3, 0, 12, 0, 0, 0},
+                {0, 0, 2, 14, 3, 0, 2, 0, 0},
+                {0, 0, 0, 0, 0, 8, 0, 10, 16},
+                {4, 2, 0, 0, 0, 0, 3, 0, 1},
+                {0, 0, 8, 0, 0, 0, 7, 5, 0}
+        };
+
+        int freq[][] = new int[][]{
+                {0, 3, 0, 0, 0, 0, 0, 2, 0},
+                {2, 0, 2, 0, 0, 0, 0, 2, 0},
+                {0, 4, 0, 5, 0, 8, 0, 0,3},
+                {0, 0, 11, 0, 12, 10, 0, 0, 0},
+                {0, 0, 0, 8, 0, 8, 0, 0, 0},
+                {0, 0, 7, 7, 7, 0, 7, 0, 0},
+                {0, 0, 0, 0, 0, 3, 0, 12, 6},
+                {7, 3, 0, 0, 0, 0, 2, 0, 6},
+                {0, 0, 1, 0, 0, 0, 4, 8, 0}
+        };
+        int start = 1;
+        int end = 7;
+        int shortestTravelTime = t.myShortestTravelTime(start, end, 14, lengthTimeGraph, first, freq);
+        System.out.println("The shortest travel time between Station " + start + " and Station " + end + " is: " + shortestTravelTime);
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Physics Experiment
- * Author: Your Name and Carolyn Yao
+ * Author: Kirsten Pevidal and Carolyn Yao
  * Does this compile or finish running within 5 seconds? Y/N
  */
 
@@ -28,20 +28,84 @@ public class PhysicsExperiment {
    * @return scheduleTable: a table similar to the signUpTable where scheduleTable[X][Y] = 1 means
    *     student X is assigned to step Y in an optimal schedule
    */
-  public int[][] scheduleExperiments(
-    int numStudents,
-    int numSteps,
-    int[][] signUpTable
-  ) {
-    // Your scheduleTable is initialized as all 0's so far. Your code will put 1's
-    // in the table in the right places based on the return description
-    int[][] scheduleTable = new int[numStudents + 1][numSteps + 1];
-
-    // Your code goes here
-
-    return scheduleTable;
-  }
-
+	 public int[][] scheduleExperiments(
+			    int numStudents,
+			    int numSteps,
+			    int[][] signUpTable
+			  ) {
+			    // Your scheduleTable is initialized as all 0's so far. Your code will put 1's
+			    // in the table in the right places based on the return description
+			    int[][] scheduleTable = new int[numStudents + 1][numSteps + 1];
+			    //we start at the first row first column
+			    int currentStudent=1; //students
+			    int currentStep=1; //steps
+			    
+			    // store how many steps remaining (will decrement when someone will do a step)
+			    int remainingSteps= numSteps; 
+			    
+			    //loop until no more steps needed
+			    while(remainingSteps>0)
+			    {   	
+			    	//if currentstudent did not sign up to the currentstep
+			    	if(signUpTable[currentStudent][currentStep]==0)
+			    	{
+			    		//if there are more steps to do
+			    		if(currentStep!=numSteps)
+			    		{
+			    			//keep track of highest possible amount of consecutive steps that a student will do
+			    			int consecutiveSteps=0; 
+			    			//index of the student with the most consecutive steps
+			    			int studentWithMostSteps=1;			    			
+			    			//loop to find student with the most consecutive steps
+			    			for(int row=1; row<=numStudents; row++)
+			    			{
+			    				//stores current largest value of consecutive steps
+			    				int currentMostConsecutiveSteps=0; 
+			    				//loop student's signed-up steps
+			    				for(int col=currentStep; col<=numSteps; col++)
+			    				{
+			    					// end loop when the student is not signed-up to do the current step
+			    					if(signUpTable[row][col]==0)
+			    					{
+			    						break;
+			    					}
+			    					else 
+			    					{
+			    						//move to next step
+			    						currentMostConsecutiveSteps++;
+			    					}
+			    					//update consecutiveSteps and studentWithMostSteps if currentMostConsecutiveSteps > consecutiveSteps
+			    					if(currentMostConsecutiveSteps > consecutiveSteps) {
+			    						consecutiveSteps=currentMostConsecutiveSteps;
+			    						studentWithMostSteps=row;
+			    					}
+			    				}
+			    			}
+			    			//update currentStudent to the student with the most consecutive signed-up steps
+			    			currentStudent= studentWithMostSteps; 
+			    		}		    		
+			    		//if only one step remaining
+			    		else {
+			    			//if currentStudent is the last student, transition back to the first student
+			    			if(currentStudent==numStudents)
+			    				currentStudent=1;
+			    			//check the next student
+			    			else
+			    				currentStudent++;
+			    		}
+			    	}
+			    	//the currentStudent is signed up for the current step
+			    	else {
+			    		//sign up the student for the currentStep
+			    		scheduleTable[currentStudent][currentStep]=1; 
+			    		//move to next step
+			    		currentStep++; 
+			    		//a student is signed-up in the currentStep, meaning one less steps to do :)
+			    		remainingSteps--;
+			    	}
+			    }
+			    return scheduleTable;
+			  }
   /**
    * Makes the convenient lookup table based on the steps each student says they can do
    * @param numSteps the number of steps in the experiment
